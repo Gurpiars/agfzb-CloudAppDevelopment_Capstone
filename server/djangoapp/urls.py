@@ -5,6 +5,10 @@ from . import views
 
 app_name = 'djangoapp'
 urlpatterns = [
+
+    path('contact/', views.contact , name='contact'),
+
+    path('about/', views.about, name='about'),
     # route is a string contains a URL pattern
     # view refers to the view function
     # name the URL

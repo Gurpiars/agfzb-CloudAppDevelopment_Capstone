@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,13 +14,24 @@
 
 </head>
 
-    <body>
+    <body class="d-flex flex-column min-vh-100">
     <!-- Remove this line the first time you edit this file -->
-     This is the index page of your Django app!
-    <!--Add a nav bar here -->
+    <!--Add a nav bar here -->   
+     <div class="container flex-grow-1">
 
+    <nav class="navbar navbar-expand-sm bg-light">
+        <a class="navbar-brand" href="#">Cars</a>
+        <ul class="nav nav-pills nav-justified">
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'djangoapp:about' %}">About us</a>
+
+          </li>
+        </ul> 
+       </nav>
+    </div>
     <!--Add a dealer table here -->
-
+    <footer class="mt-auto bg-light">
+        <a class="nav-link" href="{% url 'djangoapp:contact' %}">Contact us</a>
+    </footer>
     </body>
-
 </html>
