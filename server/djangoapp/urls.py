@@ -6,9 +6,19 @@ from . import views
 app_name = 'djangoapp'
 urlpatterns = [
 
+    path('base/', views.base, name='base'),
+
     path('contact/', views.contact , name='contact'),
 
     path('about/', views.about, name='about'),
+
+    path('registration/', views.registration, name='registration'),
+    
+    path('login/', views.login_req, name='login'),
+
+    path('logout/', views.signout, name='logout'),
+
+    path('singup/', views.signup, name='signup'),
     # route is a string contains a URL pattern
     # view refers to the view function
     # name the URL
