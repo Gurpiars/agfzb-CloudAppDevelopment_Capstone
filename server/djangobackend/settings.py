@@ -29,6 +29,7 @@ APPEND_SLASH = True
 
 ALLOWED_HOSTS = ["localhost"]
 
+CSRF_TRUSTED_ORIGINS = ['https://*.mydomain.com','https://*.127.0.0.1']
 
 # Application definition
 
