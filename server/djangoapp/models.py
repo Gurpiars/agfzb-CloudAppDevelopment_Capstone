@@ -9,7 +9,7 @@ class CarMake(models.Model):
     des = models.CharField(null=True, max_length=200,)
 
     def __str__(self):
-        return name + ' ' + des
+        return self.name + ' ' + self.des
 # - Name
 # - Description
 # - Any other fields you would like to include in car make model
