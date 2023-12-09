@@ -1,7 +1,7 @@
 import requests
 import json
 import pdb
-from .models import CarDealer
+from .models import CarDealer ,DealerReview
 from requests.auth import HTTPBasicAuth
 
 def get_request(url, **kwargs):
@@ -30,7 +30,32 @@ def get_dealers_from_cf(url, **kwargs):
             results.append(dealer_obj)
     return results
 # Create a get_dealer_reviews_from_cf method to get reviews by dealer id from a cloud function
+def get_dealer_reviews_from_cf(url, dealerid):
+    results=[]
+    json_result=get_request(url, id=dealerid)
+    if json_result:
+        try:
+            reviews = json_result  # Or adjust based on your actual JSON structure
+            for review in reviews:
+                review_doc= review
+                review_obj = DealerReview(
+                    dealership=review_doc['dealership'],
+                    name=review_doc['name'],
+                    review=review_doc['review'],
+                    car_model=review_doc['car_model'],
+                    car_make=review_doc['car_make'],
+                    car_year=review_doc['car_year'],
+                    purchase=review_doc['purchase'],
+                    id=review_doc['id'],
+                    purchase_date=review_doc['purchase_date'],
+                )
+                results.append(review_obj)
+        except Exception as e:
+            print('something went wrong in restapis try block:', e)
+    else:
+        print('something went wrong in restapis')
 
+    return results
 # - Call get_request() with specified arguments
 # - Parse JSON results into a DealerView object list
 
