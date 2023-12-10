@@ -3,19 +3,25 @@ import json
 import pdb
 from .models import CarDealer ,DealerReview
 from requests.auth import HTTPBasicAuth
+from ibm_watson import NaturalLanguageUnderstandingV1
+from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
+from ibm_watson.natural_language_understanding_v1 \
+    import Features, SentimentOptions
+
+API="2xlX9h82snRK9uMcCFCKzEEZXpjXzFJHzS4Bep7Q_8G8"
+URL="https://api.us-south.natural-language-understanding.watson.cloud.ibm.com/instances/5f57816d-c113-4e84-9397-1193f87336c8"
 
 def get_request(url, **kwargs):
     print(kwargs)
     print('GET from  {}'.format(url))
     try:
-        response= requests.get(url , headers={'Content-Type':'application/json'},
-                                    params=kwargs)
+        response= requests.get(url , params=kwargs, headers={'Content-Type':'application/json'},
+                                auth=HTTPBasicAuth('apikey', API))
     except Exception as e:
         print(f'Network exception occurred: {e}')
     status_code = response.status_code
     print('with status {}'.format(status_code))
     json_data=json.loads(response.text)
-    print (json_data)
     return json_data
 
 
@@ -48,6 +54,7 @@ def get_dealer_reviews_from_cf(url, dealerid):
                     purchase=review_doc['purchase'],
                     id=review_doc['id'],
                     purchase_date=review_doc['purchase_date'],
+                    sentiment=analyze_review_sentiments(review_doc['review'])
                 )
                 results.append(review_obj)
         except Exception as e:
@@ -61,9 +68,37 @@ def get_dealer_reviews_from_cf(url, dealerid):
 
 
 # Create an `analyze_review_sentiments` method to call Watson NLU and analyze text
-# def analyze_review_sentiments(text):
-# - Call get_request() with specified arguments
-# - Get the returned sentiment label such as Positive or Negative
+def analyze_review_sentiments(review):
+    authenticator = IAMAuthenticator(API)
+    natural_language_understanding = NaturalLanguageUnderstandingV1(
+    version='2023-12-02',
+    authenticator=authenticator)
+    try:
+        response = natural_language_understanding.analyze(
+        text=review,
+        features=Features(sentiment=SentimentOptions(targets=[review]))
+        ).get_result()
+        label=json.dumps(response, indent=2) 
+        label = response['sentiment']['document']['label'] 
+        print (label)
+        return (label)
+    except Exception as e:
+        print(f"An error occurred in sentiment analysis: {e}")
+        return None
+
+        
+def post_request(url, json_payload, **kwargs):
+    try:
+        response= requests.post(url, params=kwargs, json=json_payload)
+        response.raise_for_status()
+        return response.json
+    except requests.RequestException as e:
+        print(f"Error making POST request: {e}")
+        return None
+        
+
+
+
 
 
 

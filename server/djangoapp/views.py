@@ -4,8 +4,9 @@ from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, render, redirect
 # from .models import related models
 # from .restapis import related methods
-from .restapis import get_dealers_from_cf , get_dealer_reviews_from_cf
+from .restapis import get_dealers_from_cf , get_dealer_reviews_from_cf, post_request
 from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from datetime import datetime
 import logging
@@ -80,6 +81,34 @@ def get_dealer_details(request, dealerid):
     return HttpResponse(reviewsname)
 
 # Create a `add_review` view to submit a review
-# def add_review(request, dealer_id):
-# ...
+@login_required
+def add_review(request, dealer_id):
+    if request.method=='POST':
+        user= request.user
+        review = {
+            "time": datetime.utcnow().isoformat(),
+            "name": user.username,  # Assuming user's username as the name
+            "dealership": dealer_id,
+            "review": request.POST.get("review"),
+            "purchase": request.POST.get("purchase"),
+            "name":request.POST.get('name'),
+            "review":request.POST.get('review'),
+            "purchase_date":request.POST.get('purchase_date'),
+            "car_make":request.POST.get("car_make"),
+            "car_model":request.POST.get('car_model'),
+            "car_year":request.POST.get('car_year'),
+        }
+        json_payload={'review':review}
+        url='https://gurpiarsingh-5000.theiadocker-0-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/api/post_review'
+
+        response=post_request(url,json_payload)
+
+        if response:
+            return response
+        else:
+            return HttpResponse("An error occurred while submitting the review.")
+    else:
+        return HttpResponse('Add a POST request')
+
+
 
