@@ -39,6 +39,8 @@
               <a class="btn btn-danger" href="{% url 'djangoapp:logout' %}">Sign out</a>
               {% endif %}
             </div>
+            {% block nav_content %}
+            {% endblock nav_content %}
            </nav>
         </div>
 

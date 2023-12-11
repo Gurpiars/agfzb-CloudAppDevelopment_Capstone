@@ -32,7 +32,7 @@ def get_reviews():
 
     # Define the query based on the 'dealership' ID
     selector = {
-        'dealership': dealership_id
+        'id': dealership_id
     }
 
     # Execute the query using the query method

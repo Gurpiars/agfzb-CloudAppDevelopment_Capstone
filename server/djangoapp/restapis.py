@@ -40,27 +40,41 @@ def get_dealer_reviews_from_cf(url, dealerid):
     results=[]
     json_result=get_request(url, id=dealerid)
     if json_result:
-        try:
-            reviews = json_result  # Or adjust based on your actual JSON structure
-            for review in reviews:
-                review_doc= review
+        # Get all review data from the response
+        reviews = json_result
+        # For every review in the response
+        for review in reviews:
+            # Create a DealerReview object from the data
+            # These values must be present
+            review_content = review["review"]
+            id = review["_id"]
+            name = review["name"]
+            purchase = review["purchase"]
+            dealership = review["dealership"]
+            sentiment=analyze_review_sentiments(review['review'])
+
+            try:
+                # These values may be missing
+                car_make = review["car_make"]
+                car_model = review["car_model"]
+                car_year = review["car_year"]
+                purchase_date = review["purchase_date"]
+
+                # Creating a review object
+                review_obj = DealerReview(dealership=dealership, id=id, name=name, 
+                                          purchase=purchase, review=review_content, car_make=car_make, 
+                                          car_model=car_model, car_year=car_year, purchase_date=purchase_date,
+                                          sentiment=sentiment
+                                          )
+
+            except KeyError:
+                print("Something is missing from this review. Using default values.")
+                # Creating a review object with some default values
                 review_obj = DealerReview(
-                    dealership=review_doc['dealership'],
-                    name=review_doc['name'],
-                    review=review_doc['review'],
-                    car_model=review_doc['car_model'],
-                    car_make=review_doc['car_make'],
-                    car_year=review_doc['car_year'],
-                    purchase=review_doc['purchase'],
-                    id=review_doc['id'],
-                    purchase_date=review_doc['purchase_date'],
-                    sentiment=analyze_review_sentiments(review_doc['review'])
-                )
-                results.append(review_obj)
-        except Exception as e:
-            print('something went wrong in restapis try block:', e)
-    else:
-        print('something went wrong in restapis')
+                    dealership=dealership, id=id, name=name, purchase=purchase, review=review_content,
+                    sentiment="Unknown", purchase_date="Unknown", car_make="Unknown", car_model="Unknown", car_year="Unknown")
+            # Saving the review object to the list of results
+            results.append(review_obj)
 
     return results
 # - Call get_request() with specified arguments
