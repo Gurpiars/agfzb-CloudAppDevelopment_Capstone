@@ -3,6 +3,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, render, redirect
 # from .models import related models
+from .models import CarMake, CarDealer, CarModel
 # from .restapis import related methods
 from .restapis import get_dealers_from_cf , get_dealer_reviews_from_cf, post_request
 from django.contrib.auth import login, logout, authenticate
@@ -77,18 +78,18 @@ def get_dealer_details(request, dealerid):
         url='https://gurpiarsingh-5000.theiadocker-0-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/api/get_reviews'
         context={}
         reviews = get_dealer_reviews_from_cf(url,dealerid)
-        context={'reviews':reviews}
+        context={'reviews':reviews, "dealerid":dealerid}
     return render(request,'djangoapp/dealer_details.html', context)
 
 # Create a `add_review` view to submit a review
 @login_required
-def add_review(request, dealer_id):
+def add_review(request, dealerid):
     if request.method=='POST':
         user= request.user
         review = {
             "time": datetime.utcnow().isoformat(),
             "name": user.username,  # Assuming user's username as the name
-            "dealership": dealer_id,
+            "dealership": dealerid,
             "review": request.POST.get("review"),
             "purchase": request.POST.get("purchase"),
             "name":request.POST.get('name'),
@@ -107,8 +108,16 @@ def add_review(request, dealer_id):
             return response
         else:
             return HttpResponse("An error occurred while submitting the review.")
+    elif request.method=="GET":
+        url=f"https://gurpiarsingh-3000.theiadocker-0-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/dealerships/get?id={dealerid}"
+        context = {
+                "cars": CarModel.objects.all(),
+                "dealer": get_dealers_from_cf(url, dealerid=dealerid),
+            }
+        return render(request, 'djangoapp/add_review.html', context)
+
     else:
-        return HttpResponse('Add a POST request')
+        return redirect("djangoapp:dealer_details", dealerid=dealerid)
 
 
 

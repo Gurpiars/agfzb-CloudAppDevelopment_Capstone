@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block nav_content %}
     {% if user.is_authenticated%}
-    <a href="{% url 'djangoapp:contact'  %}">Add review</a></nav>
+    <a href="{% url 'djangoapp:add_review' dealerid  %}">Add review</a></nav>
     {% endif %}
     {% endblock  %}
     {% block content %}

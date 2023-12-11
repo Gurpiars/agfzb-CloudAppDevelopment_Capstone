@@ -6,7 +6,7 @@ from requests.auth import HTTPBasicAuth
 from ibm_watson import NaturalLanguageUnderstandingV1
 from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
 from ibm_watson.natural_language_understanding_v1 \
-    import Features, SentimentOptions
+import Features, SentimentOptions
 
 API="2xlX9h82snRK9uMcCFCKzEEZXpjXzFJHzS4Bep7Q_8G8"
 URL="https://api.us-south.natural-language-understanding.watson.cloud.ibm.com/instances/5f57816d-c113-4e84-9397-1193f87336c8"
@@ -29,7 +29,7 @@ def get_dealers_from_cf(url, **kwargs):
     results=[]
     json_result = get_request(url)
     if json_result:
-        dealers= json_result[1:10]
+        dealers= json_result[0:10]
         for dealer in dealers:
             dealer_doc = dealer
             dealer_obj = CarDealer(address=dealer_doc["address"], city=dealer_doc["city"], full_name=dealer_doc["full_name"],id=dealer_doc["id"], lat=dealer_doc["lat"], long=dealer_doc["long"],short_name=dealer_doc["short_name"], st= dealer_doc["st"], zip=dealer_doc["zip"])
