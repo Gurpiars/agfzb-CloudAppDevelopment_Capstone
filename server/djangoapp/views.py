@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, render, redirect
 # from .models import related models
 # from .restapis import related methods
+from .models import CarModel
 from .restapis import get_dealers_from_cf , get_dealer_reviews_from_cf, post_request
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
@@ -65,7 +66,7 @@ def signup(request):
 def get_dealerships(request):
     if request.method == "GET":
         context={}
-        url='https://gurpiarsingh-3000.theiadocker-0-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/dealerships/get'
+        url='https://gurpiarsingh-3000.theiadockernext-1-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/dealerships/get'
         # Get dealers from the URL
         dealerships = get_dealers_from_cf(url)
         context={'dealerships':dealerships}
@@ -74,21 +75,21 @@ def get_dealerships(request):
 # Create a `get_dealer_details` view to render the reviews of a dealer
 def get_dealer_details(request, dealerid):
     if request.method =="GET":
-        url='https://gurpiarsingh-5000.theiadocker-0-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/api/get_reviews'
+        url='https://gurpiarsingh-5000.theiadockernext-1-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/api/get_reviews'
         context={}
         reviews = get_dealer_reviews_from_cf(url,dealerid)
-        context={'reviews':reviews}
+        context={'reviews':reviews,'id':dealerid}
     return render(request,'djangoapp/dealer_details.html', context)
 
 # Create a `add_review` view to submit a review
 @login_required
-def add_review(request, dealer_id):
+def add_review(request, dealerid):
     if request.method=='POST':
         user= request.user
         review = {
             "time": datetime.utcnow().isoformat(),
             "name": user.username,  # Assuming user's username as the name
-            "dealership": dealer_id,
+            "dealership": dealerid,
             "review": request.POST.get("review"),
             "purchase": request.POST.get("purchase"),
             "name":request.POST.get('name'),
@@ -99,16 +100,18 @@ def add_review(request, dealer_id):
             "car_year":request.POST.get('car_year'),
         }
         json_payload={'review':review}
-        url='https://gurpiarsingh-5000.theiadocker-0-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/api/post_review'
-
+        url='https://gurpiarsingh-5000.theiadockernext-1-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/api/post_review'
         response=post_request(url,json_payload)
-
         if response:
             return response
         else:
             return HttpResponse("An error occurred while submitting the review.")
-    else:
-        return HttpResponse('Add a POST request')
+    elif request.method=="GET":
+        context={}
+        url='https://gurpiarsingh-3000.theiadockernext-1-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/dealerships/get'
+        results=get_dealers_from_cf(url,dealer_id = dealerid)
+        context={'cars':CarModel.objects.all(), 'dealer':results, 'id':dealerid}
+        return render(request, 'djangoapp/add_review.html', context)
 
 
 
